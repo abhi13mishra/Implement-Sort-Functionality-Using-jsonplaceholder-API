@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sortable User List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .controls {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .controls select {
+      padding: 5px;
+      font-size: 16px;
+      font-weight: 600;
+      background-color: rgb(27, 119, 119);
+      color: wheat;
+      border-radius: 4px;
+    }
+
+    .user-card {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin: 10px auto;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .error {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Sortable User List</h1>
+
+  <div class="controls">
+    <label for="sort" style="font-weight:600;">Sort by:</label>
+    <select id="sort">
+      <option value="">Default</option>
+      <option value="name">Name</option>
+      <option value="email">Email</option>
+      <option value="username">Username</option>
+    </select>
+  </div>
+
+  <div id="user-container"></div>
+
+  <script>
+    const userContainer = document.getElementById("user-container");
+    const sortSelect = document.getElementById("sort");
+
+    async function fetchUsers(sortBy = "") {
+      let url = "https://jsonplaceholder.typicode.com/users";
+      if (sortBy) {
+        url += `?_sort=${sortBy}&_order=asc`;
+      }
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Failed to fetch user data.");
+        const data = await res.json();
+        displayUsers(data);
+      } catch (error) {
+        userContainer.innerHTML = `<p class="error">${error.message}</p>`;
+      }
+    }
+
+    function displayUsers(users) {
+      userContainer.innerHTML = "";
+      users.forEach(user => {
+        const card = document.createElement("div");
+        card.className = "user-card";
+        card.innerHTML = `
+          <h3>${user.name}</h3>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Username:</strong> ${user.username}</p>
+          <p><strong>City:</strong> ${user.address.city}</p>
+        `;
+        userContainer.appendChild(card);
+      });
+    }
+
+    sortSelect.addEventListener("change", () => {
+      const sortBy = sortSelect.value;
+      fetchUsers(sortBy);
+    });
+
+    fetchUsers(); // Initial call
+  </script>
+</body>
+</html>
